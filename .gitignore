@@ -2,6 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
+Assignment1
+hw2_X_test.gz
+hw2_X_train.gz
+hw2_Y_test.gz
+hw2_Y_train.gz
+*.csv
+
 
 # C extensions
 *.so
