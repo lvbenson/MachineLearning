@@ -1,13 +1,10 @@
 import os
 import pandas as pd
 import numpy as np 
-import scipy.stats #for the pdf function 
+from scipy.stats import norm
 from sklearn.linear_model import Ridge
 
 offset = 2
-#p_x_1 = scipy.stats.norm(loc=[0,0], scale=[[1,0],[0,1]])
-#p_x_2 = scipy.stats.norm(loc[offset,offset], scale=[[1,0],[0,1]])
-
 
 def toydata(n):
     class_1_size = n/2
@@ -15,30 +12,43 @@ def toydata(n):
     classes = {}
 
     for example1,example2 in zip(range(int(class_1_size)),range(int(class_2_size))):
-        point1 = np.random.normal(loc=[0,0], scale=[[1,0],[0,1]])
-        x1 = point1[0,0]
-        y1 = point1[1,1]
-        classes[(x1,y1)] = 1
-        point2 = np.random.normal(loc=[offset,offset], scale=[[1,0],[0,1]])
-        x2 = point2[0,0]
-        y2 = point2[1,1]
-        classes[(x2,y2)] = -1
+        #draw random points from normal distribution
+        point1 = np.random.normal(loc=[0,0], scale=[1,1])
+        (x1,y1) = point1[0],point1[1]
+        classes[(x1,y1)] = 1 #put into class1
+        point2 = np.random.normal(loc=[offset,offset], scale=[1,1])
+        (x2,y2) = point2[0],point2[1]
+        classes[(x2,y2)] = 2 #put into class2
 
     #print(classes)
     return classes
 
 
-"""
-def computeybar(example):
-    #p_x_y = p_x_1.pdf(example)*p_x_2.pdf(example) 
-    pass
-"""
+def computeybar(): 
+    ybar = []
+    prob_y_1 = 0.5
+    prob_y_2 = 0.5
+
+    for x in toydata():
+        numerator = prob_x_1.pdf
+
+    
+
+    #need ybar(x)
+
+    #P(y=1) = 0.5
+    #P(y=2) = 0.5
+    #P(x|y=1) = 
+
+    #pdf(0,1) * (0.5) / 
+    #ybar(x) = -P(x|y=1)P(y=1)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2) +
+    #P(x|y=2)P(y=2)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2)
+
+    
 #points = toydata(500)
 
 def computehbar(points, num_models=25): #points as calculated from toydata
     #generate nmodel many models (Ridge regression)
-    
-
     models = [Ridge() for _ in range(num_models)]
 
     #generate n-many training sets for these n-many models
@@ -67,10 +77,10 @@ def computehbar(points, num_models=25): #points as calculated from toydata
     return hbar, models, classifications
 
 points = toydata(500)
-computehbar(points)
+h,m,c = computehbar(points)
 
 
-def computevariance(hbar):
+def computevariance(hbar,classifications):
 
     #25 Hds, applied to all 25 vectors
 
@@ -80,12 +90,8 @@ def computevariance(hbar):
         sub_var.append(sub**2)
 
     variance = np.mean(sub_var)
+    print(variance)
     return variance
-
-
-
-
-
 
 
     
