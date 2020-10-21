@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np 
+from scipy import stats
 from scipy.stats import norm
 from sklearn.linear_model import Ridge
 
@@ -25,20 +26,20 @@ def toydata(n):
 
 
 def computeybar(): 
+    prob_x_1 = np.random.normal(loc=[0,0], scale=[1,1]) #class1
+    prob_x_2 = np.random.normal(loc=[offset,offset], scale=[1,1]) #class2
     ybar = []
     prob_y_1 = 0.5
     prob_y_2 = 0.5
 
-    for x in toydata():
-        numerator = prob_x_1.pdf
-
+    for x in toydata(500):
+        #print(x)
+        denom = prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
+        num = prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
+        div = num/denom
+        ybar.append(div)
     
-
-    #need ybar(x)
-
-    #P(y=1) = 0.5
-    #P(y=2) = 0.5
-    #P(x|y=1) = 
+    print(np.array(ybar))
 
     #pdf(0,1) * (0.5) / 
     #ybar(x) = -P(x|y=1)P(y=1)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2) +
@@ -46,6 +47,7 @@ def computeybar():
 
     
 #points = toydata(500)
+computeybar()
 
 def computehbar(points, num_models=25): #points as calculated from toydata
     #generate nmodel many models (Ridge regression)
