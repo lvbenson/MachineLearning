@@ -82,8 +82,8 @@ def rbf_kernel(X,Y,gamma):
     correct = 0
     for i in range(Y.shape[0]):
         acc = 0
-        for a,x,y in zip(alpha,X,Y):
-            acc += a*y*np.exp(-gamma*np.linalg.norm(x-y)**2) #check validity of alpha
+        for a,x in zip(alpha,X):
+            acc += a*y*np.exp(-gamma*np.linalg.norm(x-a)**2) #check validity of alpha
         if acc > 0:
             acc = 1
         elif acc <= 0:
