@@ -53,15 +53,15 @@ dataset = np.insert(X,2,-1,axis=1)
 #we have coordinates for our X (training) data, and a target vector
 
 def rbf_kernel(X,Y,gamma):
-    alpha = np.zeros(X.shape[0]) #actual vector to update
+    alpha = np.zeros(X.shape[0]) #point of reference vector
     K = np.zeros((X.shape[0],X.shape[0]))
     #print(Y.shape[0])
     for i in range(X.shape[0]): 
-        for j in range(X.shape[0]):
-            K[i,j] = np.exp(-gamma*np.linalg.norm(X[i]-X[j])**2) # rbf alg, kinda like euclid distance
+        for j in range(alpha.shape[0]):
+            K[i,j] = np.exp(-gamma*np.linalg.norm(X[i]-alpha[j])**2) # rbf alg, kinda like euclid distance
     #print(K)
     #return K #this gives the covariance kinda
-    epochs = 1
+    epochs = 5
     for epoch in range(epochs):
         size = X.shape[0]
         for i in range(size):
