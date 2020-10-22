@@ -55,12 +55,13 @@ dataset = np.insert(X,2,-1,axis=1)
 def rbf_kernel(X,Y,gamma):
     alpha = np.zeros(X.shape[0]) #actual vector to update
     K = np.zeros((X.shape[0],Y.shape[0]))
+    #print(Y.shape[0])
     for i,x in enumerate(X): 
         for j,y in enumerate(Y):
             K[i,j] = np.exp(-gamma*np.linalg.norm(x-y)**2) # rbf alg
     #print(K)
     #return K #this gives the covariance kinda
-    epochs = 100
+    epochs = 2
     for epoch in range(epochs):
         size = X.shape[0]
         for i in range(size):
@@ -76,10 +77,26 @@ def rbf_kernel(X,Y,gamma):
             if check != Y[i]: #if incorrectly classified
                 alpha[i] = alpha[i] + 1 #update alpha
     #check accuracy
-    print(alpha)
+    #target = np.array(target)
+
+    correct = 0
+    for i in range(Y.shape[0]):
+        acc = 0
+        for a,x,y in zip(alpha,X,Y):
+            acc += a*y*np.exp(-gamma*np.linalg.norm(x-y)**2) #check validity of alpha
+        if acc > 0:
+            acc = 1
+        elif acc <= 0:
+            acc = -1
+        if Y[i] == acc:
+            correct += 1
+
+    print("num correct: ",correct," percent accurate : ",correct*100/X.shape[0])
+
+
     return alpha
 
 dataset = np.array(dataset)
 target = np.array(target)
-vector = rbf_kernel(dataset,target,1.0)
+vector = rbf_kernel(dataset,target,0.5)
 
