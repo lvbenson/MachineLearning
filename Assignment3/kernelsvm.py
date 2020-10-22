@@ -54,14 +54,14 @@ dataset = np.insert(X,2,-1,axis=1)
 
 def rbf_kernel(X,Y,gamma):
     alpha = np.zeros(X.shape[0]) #actual vector to update
-    K = np.zeros((X.shape[0],Y.shape[0]))
+    K = np.zeros((X.shape[0],X.shape[0]))
     #print(Y.shape[0])
-    for i,x in enumerate(X): 
-        for j,y in enumerate(Y):
-            K[i,j] = np.exp(-gamma*np.linalg.norm(x-y)**2) # rbf alg
+    for i in range(X.shape[0]): 
+        for j in range(X.shape[0]):
+            K[i,j] = np.exp(-gamma*np.linalg.norm(X[i]-X[j])**2) # rbf alg, kinda like euclid distance
     #print(K)
     #return K #this gives the covariance kinda
-    epochs = 2
+    epochs = 1
     for epoch in range(epochs):
         size = X.shape[0]
         for i in range(size):
