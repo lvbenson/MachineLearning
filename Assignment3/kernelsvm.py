@@ -67,8 +67,8 @@ matrix = rbf_kernel(dataset,target,1.0)
 
 #how do I test the accuracy?
 
-sn.heatmap(matrix, annot=True, fmt='g')
-plt.show()
+#sn.heatmap(matrix, annot=True, fmt='g')
+#plt.show()
 
 """
 for d, sample in enumerate(dataset):
