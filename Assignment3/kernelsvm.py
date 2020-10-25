@@ -6,9 +6,10 @@ from matplotlib import pyplot as plt
 import math
 
 #create dataset of points
-f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+#f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+f=open('/Users/lvbenson/Research_Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
 
-lines=f.readlines()
+lines = f.readlines()
 result=[]
 for x in lines:
     result.append(x.split(',')[0])
@@ -21,7 +22,8 @@ for sign in result:
     else:
         target.append(-1)
 
-f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+#f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+f=open('/Users/lvbenson/Research_Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
 lines1=f.readlines()
 result2=[]
 for x in lines1:
@@ -32,7 +34,8 @@ x_coords = []
 for coord in result2:
     x_coords.append(coord)
 
-f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+#f=open('/Users/benso/Desktop/Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
+f=open('/Users/lvbenson/Research_Projects/MachineLearning/Assignment3/hw3_data2.txt',"r")
 lines2=f.readlines()
 result3=[]
 for x in lines2:
@@ -44,22 +47,58 @@ for coord in result3:
 data = []
 for x,y in zip(x_coords,y_coords):
     data.append([x,y])
+f.close()
 
 X = np.array(data,dtype=float)
-dataset = np.insert(X,2,-1,axis=1)
-#print(dataset)
+
+#create test, train vectors
+x_train,y_train,x_test,y_test = train_test_split(X,target)
 
 #3600 data points
 #we have coordinates for our X (training) data, and a target vector
 
 def rbf_kernel(X,Y,gamma):
-    alpha = np.zeros(X.shape[0]) #point of reference vector
     K = np.zeros((X.shape[0],X.shape[0]))
     #print(Y.shape[0])
     for i in range(X.shape[0]): 
-        for j in range(alpha.shape[0]):
-            K[i,j] = np.exp(-gamma*np.linalg.norm(X[i]-alpha[j])**2) # rbf alg, kinda like euclid distance
-    #print(K)
+        for j in range(X.shape[0]):
+            K[i,j] = np.exp(-gamma*np.linalg.norm(X[i]-X[j])**2) # rbf alg, kinda like euclid distance
+    return K
+
+
+
+
+"""
+
+def classify(X,w,b,Y,kernel):
+
+    f_x = 0
+    for i in range(len(Y)):
+        f_x += w[i]*Y[i]*kernel[i_x,i]+b
+    
+    return f_x
+
+
+def LossFunc(X,Y,w,kernel):
+
+    w_dot_x = X.dot(w.T)
+    s_yi = w_dot_x[np.arange(x.shape[0]),y]
+
+    return s_yi
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+"""
     #return K #this gives the covariance kinda
     epochs = 5
     for epoch in range(epochs):
@@ -82,7 +121,7 @@ def rbf_kernel(X,Y,gamma):
     correct = 0
     for i in range(Y.shape[0]):
         acc = 0
-        for a,x in zip(alpha,X):
+        for a,x,y in zip(alpha,X,Y):
             acc += a*y*np.exp(-gamma*np.linalg.norm(x-a)**2) #check validity of alpha
         if acc > 0:
             acc = 1
@@ -100,3 +139,4 @@ dataset = np.array(dataset)
 target = np.array(target)
 vector = rbf_kernel(dataset,target,0.5)
 
+"""
