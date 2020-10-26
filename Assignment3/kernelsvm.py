@@ -75,7 +75,7 @@ def CalcCost(w,x,kernel,classification=1):
         return max(0, 1 + w.T.dot(x))
     
 #c is some parameter in the loss function
-def calcLoss(w,K,y,c=1):
+def calcLoss(w,K,y,c=1,reg=1):
     loss = 0
     for i in range(len(y)):
         f_i = np.array([K[i,k] for k in range(K.shape[0])])
@@ -87,8 +87,24 @@ def calcLoss(w,K,y,c=1):
     loss = c*loss
     loss = reg*w.T.dot(w)
 
+    if -y[i]*w.T.dot(x[i]) < 1:
+        L = [i for i in range(len(y))]
     
-    
+    dw = np.array([
+        -y[i] * sum([y[j]*K[j,i] for j in L]) for i in range(len(y))
+    ])
+
+
+    return loss, dw
+
+def SVM(X,Y,kernel,epochs=1000,rate=1,reg=1,C=1,gamma=1):
+    #initialize random weights
+    w = np.zeros_like(X[0])
+    for epoch in epochs:
+        lost_of_loss = 
+
+        loss,dw = CalcLoss(w)
+
 
 
 
