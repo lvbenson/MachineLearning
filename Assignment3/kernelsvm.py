@@ -66,9 +66,50 @@ def rbf_kernel(X,Y,gamma):
     return K
 
 
+def CalcCost(w,x,kernel,classification=1):
+    #loss func, non-linear svm
+    #cost1: 
+    if classification == 1:
+        return max(0, 1 - w.T.dot(x))
+    elif classification == -1:
+        return max(0, 1 + w.T.dot(x))
+    
+#c is some parameter in the loss function
+def calcLoss(w,K,y,c=1):
+    loss = 0
+    for i in range(len(y)):
+        f_i = np.array([K[i,k] for k in range(K.shape[0])])
+        c_1 = CalcCost(f_i,w,1)
+        c_0 = CalcCost(f_i,w,-1)
+
+        loss += y[i]*c_1 + (1-y[i])*c_0
+    
+    loss = c*loss
+    loss = reg*w.T.dot(w)
+
+    
+    
+
+
+
+
+
+
+
+
+
 
 
 """
+
+def predict_sgd(Xi,X,kernelFunction,w,b,sigma):
+    K=kernelFunction(Xi, X, sigma)
+    for i in range(len(L)):
+        if np.dot(w, K[i])+b >= 1:
+            return 1
+        else:
+            return 0
+
 
 def classify(X,w,b,Y,kernel):
 
