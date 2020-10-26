@@ -66,21 +66,25 @@ def rbf_kernel(X,Y,gamma):
     return K
 
 
-def CalcCost(w,x,kernel,classification=1):
+def CostFunc(w,x,kernel,classification=1):
     #loss func, non-linear svm
     #cost1: 
     if classification == 1:
         return max(0, 1 - w.T.dot(x))
     elif classification == -1:
-        return max(0, 1 + w.T.dot(x))
+        return max(0, 1 + w.T.dot(x))    
     
 #c is some parameter in the loss function
-def CalcLoss(w,K,X,Y,c=1,reg=1):
+def Loss_Calculation(w,K,X,Y,c=1,reg=1):
     loss = 0
+    size_K = range(K.shape[0])
+    size_Y = range(len(Y))
+    for i in size_Y:
+        
     for i in range(len(y)):
         f_i = np.array([K[i,k] for k in range(K.shape[0])])
-        c_1 = CalcCost(f_i,w,1)
-        c_0 = CalcCost(f_i,w,-1)
+        c_1 = CalcLoss(f_i,w,1)
+        c_0 = CalcLoss(f_i,w,-1)
 
         loss += y[i]*c_1 + (1-y[i])*c_0
     
@@ -97,18 +101,51 @@ def CalcLoss(w,K,X,Y,c=1,reg=1):
 
     return loss, dw
 
-def SVM(X,Y,K,epochs=1000,rate=1,reg=1,C=1,gamma=1):
+
+def classification(w,Y,K,index_x):
+    #w is len(X)
+
+    fx = 0
+    for i in range(len(Y)):
+        fx += Y[i]*K[index_x][i]*w[i]
+    return fx
+
+def SVM(X,Y,K,epochs=2,learn_rate=1,reg_term=1,C=1,gamma=1):
     #initialize random weights
     w = np.zeros_like(X[0])
     for epoch in epochs:
-        list_of_loss = []
+        loss_list = []
         
-        loss,dw = CalcLoss(w,K,X,Y,reg,C)
-        list_of_loss.append(loss)
+        loss,dw = CalcLoss(w,K,X,Y,reg_term,C)
+        loss_list.append(loss)
 
         w = np.subtract(w,dw)
     
     return w
+
+    
+def pipeline(X,Y,epochs=2,learn_rate=1,reg_term=1,Gamma=1,C=1):
+    K = rbf_kernel(X,Y,Gamma)
+
+    w_vector = SVM(X,Y,K,epochs,learn_rate,reg_term,C,Gamma)
+
+    #need to classify everything in X 
+    #things to classify:
+    size = range(len(X))
+
+    classify_list = []
+    for index_x in size:
+        classify_list.append(classification(w_vector,Y,K,index_x))
+    
+    return classify_list,w_vector
+
+
+overall_shits = pipeline(x_train,y_train)
+
+    
+
+
+
 
 
 
