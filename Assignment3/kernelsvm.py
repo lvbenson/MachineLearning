@@ -50,14 +50,14 @@ for x,y in zip(x_coords,y_coords):
 f.close()
 
 X = np.array(data,dtype=float)
-
+Y = np.array(target,dtype=float)
 #create test, train vectors
-x_train,y_train,x_test,y_test = train_test_split(X,target)
+x_train,y_train,x_test,y_test = train_test_split(X,Y)
 
 #3600 data points
 #we have coordinates for our X (training) data, and a target vector
-
-def rbf_kernel(X,Y,gamma):
+#with a kernel, the feature space isnt necessary to estimate K
+def rbf_kernel(X,gamma):
     K = np.zeros((X.shape[0],X.shape[0]))
     #print(Y.shape[0])
     for i in range(X.shape[0]): 
@@ -66,34 +66,41 @@ def rbf_kernel(X,Y,gamma):
     return K
 
 
-def CostFunc(w,x,kernel,classification=1):
+def CostFunc(x,w,classification):
     #loss func, non-linear svm
-    #cost1: 
+    #cost 0:
+    class_0 = max(0, 1 - w.T.dot(x))
+    print(1 - w.T.dot(x))
+    print(class_0)
+    class_1 = max(0, 1 + w.T.dot(x))
     if classification == 1:
-        return max(0, 1 - w.T.dot(x))
+        return class_0
     elif classification == -1:
-        return max(0, 1 + w.T.dot(x))    
+        return class_1    
     
 #c is some parameter in the loss function
-def Loss_Calculation(w,K,X,Y,c=1,reg=1):
+#need w, x, y, kernel calculated, C parameter, regularization term
+def Loss_Calculation(w,K,X,Y,reg_term=1,C=1): #K is 2700 x 2700 matrix (for training data), x is 2700x2, w is 2700x1
+
     loss = 0
-    size_K = range(K.shape[0])
-    size_Y = range(len(Y))
-    for i in size_Y:
-        
-    for i in range(len(y)):
-        f_i = np.array([K[i,k] for k in range(K.shape[0])])
-        c_1 = CalcLoss(f_i,w,1)
-        c_0 = CalcLoss(f_i,w,-1)
+    for i in range(len(Y)):
 
-        loss += y[i]*c_1 + (1-y[i])*c_0
-    
-    loss = c*loss
-    loss = reg*w.T.dot(w)
+        f_i = np.array([K[i,k] for k in range(K.shape[0])]) #size=2700x1,floats
+        c_1 = CostFunc(f_i,w,1) #returns either 1 or -1
+        c_0 = CostFunc(f_i,w,-1) #returns either 1 or -1
 
-    if -y[i]*w.T.dot(x[i]) < 1:
-        L = [i for i in range(len(y))]
+        loss += y[i]*c_1 + (1-y[i])*c_0 #y is float,
     
+    loss = C*loss
+    loss = reg_term*w.T.dot(w)
+
+    #if -y[i]*w.T.dot(x[i]) < 1:
+     #   L = [i for i in range(len(y))]
+    
+    L = [i for i in range(len(y)) if -y[i]*classification(i,w,y,K)<1]
+    
+    #we need to calculate the change in w, or how to wiggle our w vector
+    #according to each classification
     dw = np.array([
         -y[i] * sum([y[j]*K[j,i] for j in L]) for i in range(len(y))
     ])
@@ -102,7 +109,7 @@ def Loss_Calculation(w,K,X,Y,c=1,reg=1):
     return loss, dw
 
 
-def classification(w,Y,K,index_x):
+def classification(index_x,w,Y,K):
     #w is len(X)
 
     fx = 0
@@ -110,13 +117,14 @@ def classification(w,Y,K,index_x):
         fx += Y[i]*K[index_x][i]*w[i]
     return fx
 
-def SVM(X,Y,K,epochs=2,learn_rate=1,reg_term=1,C=1,gamma=1):
+def SVM(X,Y,K,epochs=1,learn_rate=1,reg_term=1,C=1,Gamma=1):
     #initialize random weights
-    w = np.zeros_like(X[0])
-    for epoch in epochs:
+    #w = np.zeros_like(X[0])
+    w = np.zeros(X.shape[0])
+    for epoch in range(epochs):
         loss_list = []
         
-        loss,dw = CalcLoss(w,K,X,Y,reg_term,C)
+        loss,dw = Loss_Calculation(w,K,X,Y,reg_term,C)
         loss_list.append(loss)
 
         w = np.subtract(w,dw)
@@ -124,118 +132,25 @@ def SVM(X,Y,K,epochs=2,learn_rate=1,reg_term=1,C=1,gamma=1):
     return w
 
     
-def pipeline(X,Y,epochs=2,learn_rate=1,reg_term=1,Gamma=1,C=1):
-    K = rbf_kernel(X,Y,Gamma)
+def pipeline(X,Y,epochs=1,learn_rate=1,reg_term=1,C=1,Gamma=1):
+    K = rbf_kernel(X,Gamma)
 
-    w_vector = SVM(X,Y,K,epochs,learn_rate,reg_term,C,Gamma)
+    w_vector = SVM(X,Y,K,epochs,learn_rate)
 
     #need to classify everything in X 
     #things to classify:
+    classification = [classification(i,w_vector,Y,K) for i in range(len(x))]
+    """
     size = range(len(X))
 
     classify_list = []
     for index_x in size:
-        classify_list.append(classification(w_vector,Y,K,index_x))
-    
-    return classify_list,w_vector
+        classify_list.append(classification(index_x,w_vector,Y,K,))
+    """
+    return classification,w_vector
 
 
 overall_shits = pipeline(x_train,y_train)
-
-    
-
+print(np.sign(overall_shits))
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-"""
-
-def predict_sgd(Xi,X,kernelFunction,w,b,sigma):
-    K=kernelFunction(Xi, X, sigma)
-    for i in range(len(L)):
-        if np.dot(w, K[i])+b >= 1:
-            return 1
-        else:
-            return 0
-
-
-def classify(X,w,b,Y,kernel):
-
-    f_x = 0
-    for i in range(len(Y)):
-        f_x += w[i]*Y[i]*kernel[i_x,i]+b
-    
-    return f_x
-
-
-def LossFunc(X,Y,w,kernel):
-
-    w_dot_x = X.dot(w.T)
-    s_yi = w_dot_x[np.arange(x.shape[0]),y]
-
-    return s_yi
-
-"""
-
-
-
-
-
-
-
-
-
-
-
-"""
-    #return K #this gives the covariance kinda
-    epochs = 5
-    for epoch in range(epochs):
-        size = X.shape[0]
-        for i in range(size):
-            update = 0
-            check = 0
-            for j in range(size):
-                check = alpha[j] * Y[j] * K[i,j] #kind of like the dot product thing before
-                update = update + check
-            if update <= 0:
-                check = -1 #correctly classified
-            elif update > 0: 
-                check = 1 #correctly classified
-            if check != Y[i]: #if incorrectly classified
-                alpha[i] = alpha[i] + 1 #update alpha
-    #check accuracy
-    #target = np.array(target)
-
-    correct = 0
-    for i in range(Y.shape[0]):
-        acc = 0
-        for a,x,y in zip(alpha,X,Y):
-            acc += a*y*np.exp(-gamma*np.linalg.norm(x-a)**2) #check validity of alpha
-        if acc > 0:
-            acc = 1
-        elif acc <= 0:
-            acc = -1
-        if Y[i] == acc:
-            correct += 1
-
-    print("num correct: ",correct," percent accurate : ",correct*100/X.shape[0])
-
-
-    return alpha
-
-dataset = np.array(dataset)
-target = np.array(target)
-vector = rbf_kernel(dataset,target,0.5)
-
-"""
