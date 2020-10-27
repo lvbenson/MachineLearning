@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np 
+import scipy
 from scipy import stats
 from scipy.stats import norm
 from sklearn.linear_model import Ridge
@@ -16,18 +17,18 @@ def toydata(n):
         #draw random points from normal distribution
         point1 = np.random.normal(loc=[0,0], scale=[1,1])
         (x1,y1) = point1[0],point1[1]
-        classes[(x1,y1)] = 1 #put into class1
+        classes[(x1,y1)] = -1 #put into class1
         point2 = np.random.normal(loc=[offset,offset], scale=[1,1])
         (x2,y2) = point2[0],point2[1]
-        classes[(x2,y2)] = 2 #put into class2
+        classes[(x2,y2)] = 1 #put into class2
 
     #print(classes)
     return classes
 
 
 def computeybar(): 
-    prob_x_1 = np.random.normal(loc=[0,0], scale=[1,1]) #class1
-    prob_x_2 = np.random.normal(loc=[offset,offset], scale=[1,1]) #class2
+    prob_x_1 = scipy.stats.norm(loc=[0,0], scale=[1,1]) #class1
+    prob_x_2 = scipy.stats.norm(loc=[offset,offset], scale=[1,1]) #class2
     ybar = []
     prob_y_1 = 0.5
     prob_y_2 = 0.5
@@ -35,11 +36,12 @@ def computeybar():
     for x in toydata(500):
         #print(x)
         denom = prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
-        num = prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
+        num = -prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
         div = num/denom
         ybar.append(div)
     
-    print(np.array(ybar))
+    #print(np.array(ybar))
+    return np.array(ybar)
 
     #pdf(0,1) * (0.5) / 
     #ybar(x) = -P(x|y=1)P(y=1)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2) +
@@ -47,7 +49,7 @@ def computeybar():
 
     
 #points = toydata(500)
-computeybar()
+y_bar = computeybar()
 
 def computehbar(points, num_models=25): #points as calculated from toydata
     #generate nmodel many models (Ridge regression)
@@ -80,6 +82,7 @@ def computehbar(points, num_models=25): #points as calculated from toydata
 
 points = toydata(500)
 h,m,c = computehbar(points)
+#print(h)
 
 
 def computevariance(hbar,classifications):
@@ -92,10 +95,30 @@ def computevariance(hbar,classifications):
         sub_var.append(sub**2)
 
     variance = np.mean(sub_var)
-    print(variance)
+    #print(variance,'variance')
     return variance
 
+var = computevariance(h,c)
 
+
+def computeBias(hbar,ybar):
+    bias = np.mean((hbar-ybar)**2)
+    #print(bias,'bias')
+    return bias
+bias_ = computeBias(h,y_bar)
+
+
+def computeNoise(ybar,Y):
+    noise = np.mean((ybar-Y)**2)
+    #print(noise,'noise')
+    return noise
+
+noise_ = computeNoise(y_bar,c)
+
+Error = var + bias_ + noise_
+#print(Error)
+
+print('variance:',var,'bias:',bias_,'noise:',noise_,'Error:',Error)
     
     
     

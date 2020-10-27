@@ -68,8 +68,8 @@ def rbf_kernel(X,gamma):
 
 
 def CostFunc(x,w,classification):
-    #loss func, non-linear svm
-    #cost 0:
+    #I am using the hinge loss function
+    
     class_0 = max(0, 1 - w.T.dot(x))
     class_1 = max(0, 1 + w.T.dot(x))
     if classification == 1:
@@ -117,7 +117,7 @@ def classification(index_x,w,Y,K):
         fx += Y[i]*K[index_x][i]*w[i]
     return fx
 
-def SVM(X,Y,K,epochs=5,learn_rate=1,reg_term=1,C=1,Gamma=1):
+def SVM(X,Y,K,epochs=25,learn_rate=1,reg_term=1,C=1,Gamma=1):
     #initialize w vector. This is the size of X
     w = np.zeros(X.shape[0])
     for epoch in range(epochs):
@@ -127,11 +127,11 @@ def SVM(X,Y,K,epochs=5,learn_rate=1,reg_term=1,C=1,Gamma=1):
         loss_list.append(loss)
 
         w = np.subtract(w,dw)
-    print(w.shape)
+    #print(w.shape)
     return w
 
     
-def pipeline(X,Y,epochs=5,learn_rate=1,reg_term=1,C=1,Gamma=1):
+def pipeline(X,Y,epochs=25,learn_rate=1,reg_term=1,C=1,Gamma=1):
     K = rbf_kernel(X,Gamma)
 
     w_vector = SVM(X,Y,K,epochs,learn_rate)
