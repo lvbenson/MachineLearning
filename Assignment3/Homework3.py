@@ -5,6 +5,7 @@ import scipy
 from scipy import stats
 from scipy.stats import norm
 from sklearn.linear_model import Ridge
+from matplotlib import pyplot as plt
 
 offset = 2
 
@@ -26,50 +27,38 @@ def toydata(n):
     return classes
 
 
-def computeybar(): 
-    prob_x_1 = scipy.stats.norm(loc=[0,0], scale=[1,1]) #class1
-    prob_x_2 = scipy.stats.norm(loc=[offset,offset], scale=[1,1]) #class2
+def computeybar(points): 
+    prob_x_1 = scipy.stats.multivariate_normal(mean=[0,0], cov=np.identity(2)) #class1
+    prob_x_2 = scipy.stats.multivariate_normal(mean=[offset,offset], cov=np.identity(2)) #class2
     ybar = []
     prob_y_1 = 0.5
     prob_y_2 = 0.5
 
-    for x in toydata(500):
+    for x in points:
         #print(x)
-        denom = prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
-        num = -prob_x_1.pdf(x)[0]*prob_y_1 + prob_x_2.pdf(x)[1]*prob_y_2
+        denom = prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
+        num = -prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
         div = num/denom
         ybar.append(div)
     
     #print(np.array(ybar))
-    return np.array(ybar)
+    y_bar = np.array(ybar)
+    #print(y_bar.shape)
+    return y_bar
 
-    #pdf(0,1) * (0.5) / 
-    #ybar(x) = -P(x|y=1)P(y=1)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2) +
-    #P(x|y=2)P(y=2)/P(x|y=1)P(y=1) + P(x|y=2)P(y=2)
-
-    
-#points = toydata(500)
-y_bar = computeybar()
-
-def computehbar(points, num_models=25): #points as calculated from toydata
+def computehbar(lambda_,points,num_models=25): #points as calculated from toydata
     #generate nmodel many models (Ridge regression)
-    models = [Ridge() for _ in range(num_models)]
+    models = [Ridge(alpha=10**lambda_) for _ in range(num_models)]
 
     #generate n-many training sets for these n-many models
     datasets = [toydata(500) for _ in range(num_models)]
-    #print(datasets)
 
     #train the n-many models
     for i in range(num_models):
         X = np.array(list(datasets[i].keys()))
         y = np.array(list(datasets[i].values()))
         models[i].fit(X=X,y=y)
-        #models[i].fit(X=np.array(datasets[i].keys()), y=datasets[i].values())
 
-    #get the predictions from training corpus
-    #takes point value, returns which class it is in 
-
-    #
     classifications = np.array([m.predict(np.array(list(points.keys()))) for m in models])
     #25 models trained over each of the 500 points 
     #across rows, different predictions for the same point
@@ -77,51 +66,78 @@ def computehbar(points, num_models=25): #points as calculated from toydata
     #mean of the classifications, for each of the 500 points
     #for each coordinate, in 500x1, it is the 25 model predictions for that X (where the X is the point in question)
     hbar = np.mean(classifications, axis=0)
-    #print(hbar)
-    return hbar, models, classifications
-
-points = toydata(500)
-h,m,c = computehbar(points)
-#print(h)
+    return hbar,classifications
 
 
 def computevariance(hbar,classifications):
-
     #25 Hds, applied to all 25 vectors
 
     sub_var = []
     for m in classifications:
         sub = m - hbar
         sub_var.append(sub**2)
-
     variance = np.mean(sub_var)
-    #print(variance,'variance')
     return variance
-
-var = computevariance(h,c)
 
 
 def computeBias(hbar,ybar):
     bias = np.mean((hbar-ybar)**2)
-    #print(bias,'bias')
-    return bias
-bias_ = computeBias(h,y_bar)
+    return np.mean(bias)
 
 
 def computeNoise(ybar,Y):
     noise = np.mean((ybar-Y)**2)
-    #print(noise,'noise')
     return noise
-
-noise_ = computeNoise(y_bar,c)
-
-Error = var + bias_ + noise_
-#print(Error)
-
-print('variance:',var,'bias:',bias_,'noise:',noise_,'Error:',Error)
     
+def biasvariancedemo():
+    #plot: variance, bias, noise, test error, bias+variance+noise
+
+    var_list = []
+    bias_list = []
+    noise_list = []
+    error_list = []
+
+    for lambda_ in np.arange(-10,10,0.1):
+        points = toydata(500)
+        X = np.array(list(points.keys()))
+        Y = np.array(list(points.values()))
+        
+        #get ybar
+        ybar_ = computeybar(points)
+        #get hbar
+        hbar_,classifications_ = computehbar(lambda_,points)
+        #get variance
+        var = computevariance(hbar_,classifications_)
+        var_list.append(var)
+        #get bias
+        bias_ = computeBias(hbar_,ybar_)
+        bias_list.append(bias_)
+        #get noise
+        noise_ = computeNoise(ybar_,Y)
+        noise_list.append(noise_)
+        #get error
+        error = var + bias_ + noise_
+        error_list.append(error)
+    return var_list,bias_list,noise_list,error_list
+
+v,b,n,e = biasvariancedemo()
     
+plt.plot(v,label='variance')
+plt.plot(b,label='bias')
+plt.plot(n,label='noise')
+plt.plot(e,label='error')
+plt.legend()
+plt.show()
     
+
+
+
+
+
+
+
+
+
 
 
 
