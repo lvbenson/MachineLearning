@@ -91,7 +91,7 @@ def Loss_Calculation(w,K,X,Y,reg_term=1,C=1): #K is 2700 x 2700 matrix (for trai
         loss += Y[i]*c_1 + (1-Y[i])*c_0 #y is float,
     
     loss = C*loss
-    loss = reg_term*w.T.dot(w)
+    loss += reg_term*w.T.dot(w)
 
     #if -y[i]*w.T.dot(x[i]) < 1:
      #   L = [i for i in range(len(y))]
