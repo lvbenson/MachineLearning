@@ -23,7 +23,6 @@ def toydata(n):
         (x2,y2) = point2[0],point2[1]
         classes[(x2,y2)] = 1 #put into class2
 
-    #print(classes)
     return classes
 
 
@@ -35,7 +34,6 @@ def computeybar(points):
     prob_y_2 = 0.5
 
     for x in points:
-        #print(x)
         denom = prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
         num = -prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
         div = num/denom

@@ -69,7 +69,7 @@ def rbf_kernel(X,gamma):
 
 def CostFunc(x,w,classification):
     #I am using the hinge loss function
-    
+
     class_0 = max(0, 1 - w.T.dot(x))
     class_1 = max(0, 1 + w.T.dot(x))
     if classification == 1:
@@ -185,12 +185,11 @@ for i,y in zip(classifications_test,y_test):
 total_correct_test = (len(correct_classify_test)) / (len(correct_classify_test) + len(incorrect_classify_test))
 print(total_correct_test,' :accuracy of test data')
 
-for d, sample in enumerate(x_test):
-    if y_test[d] == -1:
+"""
+for d, sample in enumerate(X):
+    if Y[d] == -1:
         plt.scatter(sample[0], sample[1], s=100, marker='o', c='blue',linewidths=2)
     else:
         plt.scatter(sample[0], sample[1], s=100, marker='*', c='green',linewidths=2)
 
-plt.plot(w,c='red',label='hyperplane')
-plt.legend()
-plt.show()
+"""
