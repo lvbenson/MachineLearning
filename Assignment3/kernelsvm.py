@@ -185,11 +185,5 @@ for i,y in zip(classifications_test,y_test):
 total_correct_test = (len(correct_classify_test)) / (len(correct_classify_test) + len(incorrect_classify_test))
 print(total_correct_test,' :accuracy of test data')
 
-"""
-for d, sample in enumerate(X):
-    if Y[d] == -1:
-        plt.scatter(sample[0], sample[1], s=100, marker='o', c='blue',linewidths=2)
-    else:
-        plt.scatter(sample[0], sample[1], s=100, marker='*', c='green',linewidths=2)
-
-"""
+def plot_hyperplane(X,Y,w):
+    
