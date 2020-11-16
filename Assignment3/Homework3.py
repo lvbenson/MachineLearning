@@ -34,10 +34,8 @@ def computeybar(points):
     prob_y_2 = 0.5
 
     for x in points:
-        denom = prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
-        num = -prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2
-        div = num/denom
-        ybar.append(div)
+        p_d_f = (-prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2)/(prob_x_1.pdf(x)*prob_y_1 + prob_x_2.pdf(x)*prob_y_2)
+        ybar.append(p_d_f)
     
     #print(np.array(ybar))
     y_bar = np.array(ybar)
@@ -46,10 +44,20 @@ def computeybar(points):
 
 def computehbar(lambda_,points,num_models=25): #points as calculated from toydata
     #generate nmodel many models (Ridge regression)
-    models = [Ridge(alpha=10**lambda_) for _ in range(num_models)]
+    models = []
+    for mod in range(num_models):
+        ridge_mod = Ridge(alpha=10**lambda_)
+        models.append(ridge_mod)
+
+    #models = [Ridge(alpha=10**lambda_) for _ in range(num_models)]
 
     #generate n-many training sets for these n-many models
-    datasets = [toydata(500) for _ in range(num_models)]
+    datasets = []
+    for mod in range(num_models):
+        dat = toydata(500)
+        datasets.append(dat)
+
+    #datasets = [toydata(500) for _ in range(num_models)]
 
     #train the n-many models
     for i in range(num_models):
@@ -57,7 +65,14 @@ def computehbar(lambda_,points,num_models=25): #points as calculated from toydat
         y = np.array(list(datasets[i].values()))
         models[i].fit(X=X,y=y)
 
-    classifications = np.array([m.predict(np.array(list(points.keys()))) for m in models])
+    classifications = []
+    for mod in models:
+        m_ = np.array(list(points.keys()))
+        m_pred = mod.predict(m_)
+        classifications.append(m_pred)
+
+
+    #classifications = np.array([m.predict(np.array(list(points.keys()))) for m in models])
     #25 models trained over each of the 500 points 
     #across rows, different predictions for the same point
 
@@ -119,11 +134,14 @@ def biasvariancedemo():
     return var_list,bias_list,noise_list,error_list
 
 v,b,n,e = biasvariancedemo()
-    
+
+b_v = np.add(b,v)  
+b_v_n = np.add(b_v,n)
 plt.plot(v,label='variance')
 plt.plot(b,label='bias')
 plt.plot(n,label='noise')
 plt.plot(e,label='error')
+plt.plot(b_v_n,label='bias+var+noise')
 plt.legend()
 plt.show()
     
