@@ -93,3 +93,5 @@ def count(label, idx):
 # check counts at first node to check it aligns with sci-kit learn
 d = count(y, y.index)
 print(d)
+
+#now we have everything we need for the first split. we need to repeat this for all the splits. 
