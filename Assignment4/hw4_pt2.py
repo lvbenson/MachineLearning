@@ -47,7 +47,6 @@ def information_gain(label, left_idx, right_idx, impurity):
 
     p = float(len(left_idx)) / (len(left_idx) + len(right_idx))
     info_gain = impurity - p * gini_impurity(label, left_idx) - (1 - p) * gini_impurity(label, right_idx)
-    #print(info_gain)
     return info_gain
 
 i_g = information_gain(y,l,r,g)
@@ -86,12 +85,27 @@ print(gain,col,val)
 
 # helper function to count values
 def count(label, idx):
-
+    #counts each unique value
     unique_label, unique_label_counts = np.unique(label.loc[idx], return_counts=True)
     dict_label_count = dict(zip(unique_label, unique_label_counts))
     return dict_label_count
 # check counts at first node to check it aligns with sci-kit learn
 d = count(y, y.index)
-print(d)
+#print(d)
 
 #now we have everything we need for the first split. we need to repeat this for all the splits. 
+
+def build_tree(df, label, idx): 
+    best_gain, best_col, best_value = find_best_split(df, label, idx)
+    
+    if best_gain == 0: #no more gains to find
+        return Leaf(label, label.loc[idx].index)
+    
+    left_idx, right_idx = decision_tree(df.loc[idx], best_col, best_value)
+    
+    true_branch = build_tree(df, label, left_idx)
+    
+    false_branch = build_tree(df, label, right_idx)
+    
+    return Decision_Node(best_col, best_value, true_branch, false_branch)
+my_tree = build_tree(X_train, y_train, X_train.index)  
