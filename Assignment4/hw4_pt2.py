@@ -57,24 +57,19 @@ def find_best_split(df, label, idx):
     best_col = None
     best_value = None
     
-    df = df.loc[idx] # converting training data to pandas dataframe
-    label_idx = label.loc[idx].index # getting the index of the labels
+    df = df.loc[idx] 
+    label_idx = label.loc[idx].index 
 
-    impurity = gini_impurity(label, label_idx) # determining the impurity at the current node
+    impurity = gini_impurity(label, label_idx)
     
-    # go through the columns and store the unique values in each column (no point testing on the same value twice)
     for col in df.columns: 
         unique_values = set(df[col])
-        # loop thorugh each value and partition the data into true (left_index) and false (right_index)
         for value in unique_values: 
 
             left_idx, right_idx = decision_tree(df, col, value)
-            # ignore if the index is empty (meaning there was no features that met the decision rule)
             if len(left_idx) == 0 or len(right_idx) == 0: 
                 continue 
-            # determine the info gain at the node
             info_gain = information_gain(label, left_idx, right_idx, impurity)
-            # if the info gain is higher then our current best gain then that becomes the best gain
             if info_gain > best_gain:
                 best_gain, best_col, best_value = info_gain, col, value
                 
@@ -83,7 +78,6 @@ def find_best_split(df, label, idx):
 gain,col,val = find_best_split(X, y, y.index)
 print(gain,col,val)
 
-# helper function to count values
 def count(label, idx):
     #counts each unique value
     unique_label, unique_label_counts = np.unique(label.loc[idx], return_counts=True)
