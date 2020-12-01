@@ -1,0 +1,16 @@
+
+digraph Tree {
+node [shape=box] ;
+0 [label="Finished hwk <= 0.5
+entropy = 0.985
+samples = 14
+value = [6, 8]"] ;
+1 [label="entropy = 0.985
+samples = 7
+value = [4, 3]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="entropy = 0.863
+samples = 7
+value = [2, 5]"] ;
+0 -> 2 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}

@@ -323,7 +323,6 @@ def build_tree(df, cols, outcome):
         return tree
 
 
-# Given a instance of a training data, make a prediction of healthy or colic
 # based on the Decision Tree
 # Assumes all data has been cleaned (i.e. no NULL data)
 def predict(node, row_df):
